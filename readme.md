@@ -9,8 +9,9 @@
 + use templates
 + issues with webpack-dev-server
     > when start webpack-dev-server, access url: ip:port/app/projectName/page/index.html
+
     > inline / hot not work now
-    
+
 ### QA
 + how to generate tree?
 + what is inline mode?
@@ -62,5 +63,7 @@
             - pageA.css
             - pageB.js
             - pageB.css
+    - img `处理过的图片存放路径`
+    - xxx.ico `如果有设置图标，一律在根目录`
 
 
