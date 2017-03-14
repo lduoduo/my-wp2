@@ -4,9 +4,12 @@
 + multiple entries and auto inject js file into each html
 
 ### inprogress part
-+ auto gzip and inject pics
++ auto gzip and inject pics in js / css / html
 + use templates
 + issues with webpack-dev-server
+
+### QA
++ how to generate tree?
 
 ### source dir
 - src

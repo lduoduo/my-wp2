@@ -5,7 +5,9 @@
   "main": "apps.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --inline --hot --content-base --colors"
+    "start": "webpack-dev-server --inline --hot --content-base --colors",
+    "dev": "webpack --config wp.dev.js --watch",
+    "build": "webpack --config wp.prd.js"
   },
   "devDependencies": {
     "babel-core": "^6.24.0",

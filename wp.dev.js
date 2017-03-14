@@ -11,7 +11,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 /** 引入工具 */
 const tool = require('./utils.js');
 
-/** 脚本样式的路径前缀 */
+/** 监听源文件的根目录 */
+const srcPath = path.resolve(__dirname, "src/app");
+/** 文件生成后存放的根目录 */
+const distPath = path.resolve(__dirname, "dist");
+/** 服务器上的静态资源公开目录 */
+const publicPath = '/static/';
+/** 生成脚本样式之后的文件存放的路径前缀 */
 const preStatic = 'other';
 
 console.info('\n *************************************打包开始************************************ \n');
@@ -23,20 +29,21 @@ var config = {
      * 从context的文件夹里读取entry里面所有的文件进行解析,打包代码里面的依赖(import / require)
      * 将所有东西打包到output.path对应的文件夹里, 使用output.filename对应的命名模板来命名([name]被entry里的对象键值替代)
      */
-    context: path.resolve(__dirname, "src/app"),
+    context: srcPath,
     // the environment in which the bundle should run
     // changes chunk loading behavior and available modules
     target: "web",
     entry: info['entry'],
     output: {
-        path: path.resolve(__dirname, "dist"),
-        filename: '[name]-[chunkhash].js',
-        publicPath: '/static',
+        path: distPath,
+        filename: '[name].js',
+        // filename: '[name]-[chunkhash].js',
+        publicPath: publicPath,
         /**
          * 这样就会把打包结果绑定到一个 window.myClassName 实例上。所以使用这种命名作用域，就可以调用 entry 点里面的方法了
          * 参考: https://webpack.js.org/concepts/output/#output-library
          */
-        // library: 'dodo',
+        library: 'dodo',
     },
     module: {
         rules: [
@@ -72,13 +79,20 @@ var config = {
                 })
             },
             {
+                /** html文件里面的图片处理 
+                 * 一个很常见的场景，将 HTML 导出到 .html 文件中，直接访问它们，而不是使用 javascript 注入。
+                 * http://www.css88.com/doc/webpack2/loaders/html-loader/
+                */
                 test: /\.html$/,
                 // use: ['file-loader?name=[path][name].[ext]','extract-loader','html-loader']
-                use: [ 'file-loader?name=[path][name].[ext]!extract-loader!html-loader' ]
+                // use: [ 'file-loader?name=html/[path][name].[ext]','extract-loader','html-loader' ]
             },
             {
+                /** 用于js/css中引入的图片处理 
+                 * https://webpack.js.org/loaders/url-loader/
+                */
                 test: /\.(png|jpg|jpeg|gif)$/,
-                use: ['url-loader?limit=8192']
+                use: ['url-loader?limit=8192&name=img/[name].[hash:8].[ext]']
             }
         ]
     },
@@ -121,7 +135,8 @@ var config = {
          * https://github.com/webpack-contrib/extract-text-webpack-plugin
          */
         new ExtractTextPlugin({
-            filename: "[name]-[chunkhash].css",
+            filename: "[name].css",
+            // filename: "[name]-[chunkhash].css",
             allChunks: true,
         }),
 
@@ -155,15 +170,21 @@ var pages = Object.keys(info['html']);
 console.info('\n\n *************************************html入口打包************************************ \n');
 pages.forEach(function (pathname) {
     console.log('path----->%s', pathname);
-    var destname = pathname.substring((pathname.lastIndexOf('/')), pathname.lastIndexOf('.'));
-    var foldername = destname.replace('/', '');
+    // var destname = pathname.substring((pathname.lastIndexOf('/')), pathname.lastIndexOf('.'));
+    var destname = pathname.substring(0, pathname.lastIndexOf('/'));
+    var foldername = preStatic ? preStatic + '/' + destname : destname;
     console.log('destpath----->%s', destname);
     var conf = {
         //生成的html存放路径，相对于output.path
         filename: './html/' + destname + '.html',
-        chunks: ['commons', preStatic ? preStatic + '/' + destname : destname],
-        //html模板路径
-        // template: './src/page' + pathname + '.html',
+        // chunks: ['commons', preStatic ? preStatic + '/' + destname : destname],
+
+        /** 
+         * 原始html模板路径
+         * template一定要写明
+         * 不写的后果: js注入生成的html文件是个空的html文件
+         */
+        template: srcPath + '/' + pathname + '.html',
         //js插入的位置，true/'head'/'body'/false
         inject: 'body',
         /**
@@ -174,7 +195,7 @@ pages.forEach(function (pathname) {
         /**
          * If you need to set the output path explicitly (for example when using with webpack-dev-server middleware) then pass in the outputPath option
          */
-        outputPath: path.resolve(__dirname, 'dist'),
+        outputPath: distPath,
         /*
          * 压缩这块，调用了html-minify，会导致压缩时候的很多html语法检查问题，
          * 如在html标签属性上使用{{...}}表达式，很多情况下并不需要在此配置压缩项，
@@ -187,12 +208,14 @@ pages.forEach(function (pathname) {
         // }
     };
 
+    // console.log('foldername/config.entry ---- >%s -- %s',foldername,JSON.stringify(config.entry));
     if (foldername in config.entry) {
         console.log('1');
         conf.favicon = path.resolve(__dirname, 'src/img/myico.ico');
+        //js插入的位置，true/'head'/'body'/false
         conf.inject = 'body';
-        conf.chunks = ['vendors', foldername];
-        conf.hash = true;
+        conf.chunks = ['commons', foldername];
+        // conf.hash = true;
     }
 
     config.plugins.push(new HtmlWebpackPlugin(conf));
