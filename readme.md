@@ -48,10 +48,12 @@
         - projectA
             - pageA.html
             - pageB.html
-    - js `生成js文件，按项目存放所有js文件，抽出的公共js直接存放`
+    - other `生成js/css文件，按项目存放所有js/css文件，抽出的公共js直接存放`
         - chunks.js
         - projectA
             - pageA.js
+            - pageA.css
             - pageB.js
+            - pageB.css
 
 
