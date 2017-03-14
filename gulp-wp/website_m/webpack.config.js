@@ -6,6 +6,9 @@ var path = require("path");
 
 var CommonsChunkPlugin = webpack.optimize.CommonsChunkPlugin;
 var UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
+
+//清空build目录
+var CleanWebpackPlugin = require('clean-webpack-plugin');
 //该插件可以将样式提取到单独的css文件里，不会被打包到js文件里
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
@@ -15,10 +18,13 @@ var HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const debug = process.env.NODE_ENV !== 'production';
 
-var entries = getEntry('src/page/*/*.js');
+//循环遍历所有文件，获取html和其他文件目录信息
+var obj = getEntry('src/page/**/*.*');
+
+var entries = obj['other'];
 var chunks = Object.keys(entries);
-console.log("entries:" + JSON.stringify(entries));
-console.log("__dirname:" + __dirname);
+// console.log("entries:" + JSON.stringify(entries));
+// console.log("__dirname:" + __dirname);
 var config = {
     entry: entries,
     output: {
@@ -37,7 +43,7 @@ var config = {
             //配置less的抽取器、加载器。中间!有必要解释一下，
             //根据从右到左的顺序依次调用less、css加载器，前一个的输出是后一个的输入
             //你也可以开发自己的loader哟。有关loader的写法可自行谷歌之。
-            loader: ExtractTextPlugin.extract("style-loader!css-loader!autoprefixer-loader!less-loader")
+            loader: ExtractTextPlugin.extract("style-loader!css-loader!postcss-loader!less-loader")
         }, {
             test: /\.html$/,
             //html模板加载器，可以处理引用的静态资源，默认配置参数attrs=img:src，处理图片的src引用的资源
@@ -55,6 +61,12 @@ var config = {
         }]
     },
     plugins: [
+        //先清空build目录
+        new CleanWebpackPlugin(["./public/*"], {
+            "root": "",
+            "verbose": true,
+            "dry": false
+        }),
         new webpack.ProvidePlugin({ //加载zepto
             $: "zepto"
         }),
@@ -66,7 +78,7 @@ var config = {
         new ExtractTextPlugin("./css/[name].css"), //单独使用link标签加载css并设置路径，相对于output配置中的publicPath
         //模板生成相关的配置，每个对于一个页面的配置，有几个写几个, 根据模板插入css/js等生成最终HTML
         new webpack.HotModuleReplacementPlugin(), //热加载
-        debug ? function() {} : new UglifyJsPlugin({ //压缩代码
+        debug ? function () { } : new UglifyJsPlugin({ //压缩代码
             compress: {
                 warnings: false
             },
@@ -75,11 +87,12 @@ var config = {
     ],
     watch: true,
     keepalive: true,
-    // lessLoader: {
-    //     lessPlugins: [
-    //         new LessPluginAutoPrefix()
-    //     ]
-    // },
+    postcss: () => {
+        return [
+            require('precss'),
+            require('autoprefixer')
+        ];
+    },
     //使用webpack-dev-server，提高开发效率
     devServer: {
         contentBase: "./",
@@ -92,8 +105,8 @@ var config = {
 
 module.exports = config;
 
-var pages = Object.keys(getEntry('src/page/**/*.html'));
-pages.forEach(function(pathname) {
+var pages = Object.keys(obj['html']);
+pages.forEach(function (pathname) {
     console.log('path:' + pathname);
     var destname = pathname.substring((pathname.lastIndexOf('/')), pathname.lastIndexOf('.'));
     var foldername = destname.replace('/', '');
@@ -125,20 +138,25 @@ pages.forEach(function(pathname) {
 
 function getEntry(url) {
     console.log("url:" + url);
-    var entry = {};
-    glob.sync(url).forEach(function(name) {
-
+    var entry = {
+        html: {},
+        other: {}
+    };
+    glob.sync(url).forEach(function (name) {
+        console.log(name);
         /*
         循环所有文件，对文件名做处理，并放入entry数组中，返回entry
          */
-        var n = "";
+        var n = "", type = "";
         // n = name.substring((name.lastIndexOf('/') + 1), name.lastIndexOf('.'));
         if (name.indexOf('html') != -1) {
             //是html页面
+            type = "html";
             n = name.substring(8, name.lastIndexOf('.'));
             // console.log("n_html:"+n);
         } else {
             //不是html页面  这里实际上只有js页面需要处理
+            type = "other";
             n = name.substring((name.lastIndexOf('/') + 1), name.lastIndexOf('.'));
             // console.log("n_js:"+n);
         }
@@ -147,8 +165,9 @@ function getEntry(url) {
         name = __dirname + "\\" + name;
         name = name.replace(/\\/gi, "/");
         if (n.indexOf(".") != 0) {
-            entry[n] = name;
+            entry[type][n] = name;
         }
     });
+    console.log('entry----->' + JSON.stringify(entry));
     return entry;
 };
