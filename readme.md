@@ -1,5 +1,12 @@
 ## wp2 ---> webpack2 demo
-> multiple entry and inject js file into html
+
+### done part
++ multiple entries and auto inject js file into each html
+
+### inprogress part
++ auto gzip and inject pics
++ use templates
++ issues with webpack-dev-server
 
 ### source dir
 - src

@@ -8,7 +8,7 @@ module.exports = {
      *  js:[]
      * }
      */
-    getEntry(url) {
+    getEntry(url, preStatic) {
         console.log("url----->%s", url);
         var entry = {
             html: {},
@@ -32,7 +32,9 @@ module.exports = {
                 n = name.substring(8, name.lastIndexOf('.'));
                 n = n.substring(0, n.lastIndexOf('/'));
                 // n = name.substring((name.lastIndexOf('/') + 1), name.lastIndexOf('.'));
-                n = 'js/' + n;
+                
+                //为脚本样式添加统一前缀
+                n = preStatic ? preStatic + '/' + n : n;
             }
             // name = name.replace(/\//gi, "/");
             console.log("file----->%s", name);

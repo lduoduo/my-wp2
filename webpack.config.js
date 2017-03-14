@@ -8,11 +8,15 @@ var CleanPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+/** 引入工具 */
 const tool = require('./utils.js');
+
+/** 脚本样式的路径前缀 */
+const preStatic = 'other';
 
 console.info('\n *************************************打包开始************************************ \n');
 //循环遍历所有文件，获取html和其他文件目录信息
-const info = tool.getEntry('src/app/**/**/*.*');
+const info = tool.getEntry('src/app/**/**/*.*', preStatic);
 
 var config = {
     /**
@@ -61,7 +65,20 @@ var config = {
             },
             {
                 test: /\.less$/,
-                use: ["style-loader", "css-loader", 'less-loader']
+                use: ExtractTextPlugin.extract({
+                    fallback: 'style-loader',
+                    //resolve-url-loader may be chained before sass-loader if necessary
+                    use: ['css-loader', 'less-loader']
+                })
+            },
+            {
+                test: /\.html$/,
+                // use: ['file-loader?name=[path][name].[ext]','extract-loader','html-loader']
+                use: [ 'file-loader?name=[path][name].[ext]!extract-loader!html-loader' ]
+            },
+            {
+                test: /\.(png|jpg|jpeg|gif)$/,
+                use: ['url-loader?limit=8192']
             }
         ]
     },
@@ -74,10 +91,16 @@ var config = {
         modules: [path.resolve(__dirname, "src"), "node_modules"]
     },
     plugins: [
-        //先清空build目录
+        /**
+         * 先清空build目录
+         * https://github.com/johnagan/clean-webpack-plugin
+         */
         new CleanPlugin(["./dist/*"], {
             "root": "",
+            // Write logs to console.
             "verbose": true,
+            // Use boolean "true" to test/emulate delete. (will not remove files).
+            // (Default: "false", remove files)
             "dry": false
         }),
         /**
@@ -88,7 +111,7 @@ var config = {
          */
         new webpack.optimize.CommonsChunkPlugin({
             name: 'commons',
-            filename: 'js/commons.js',
+            filename: preStatic ? preStatic + '/commons.js' : 'commons.js',
             minChunks: 2
         }),
         /**
@@ -138,7 +161,7 @@ pages.forEach(function (pathname) {
     var conf = {
         //生成的html存放路径，相对于output.path
         filename: './html/' + destname + '.html',
-        chunks: ['commons','commons','[name]-[chunkhash]'],
+        chunks: ['commons', preStatic ? preStatic + '/' + destname : destname],
         //html模板路径
         // template: './src/page' + pathname + '.html',
         //js插入的位置，true/'head'/'body'/false
