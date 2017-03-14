@@ -2,14 +2,18 @@
 
 ### done part
 + multiple entries and auto inject js file into each html
++ auto gzip and inject pics in js / css / html
+    > already made explaination in the code
 
 ### inprogress part
-+ auto gzip and inject pics in js / css / html
 + use templates
 + issues with webpack-dev-server
-
+    > when start webpack-dev-server, access url: ip:port/app/projectName/page/index.html
+    > inline / hot not work now
+    
 ### QA
 + how to generate tree?
++ what is inline mode?
 
 ### source dir
 - src

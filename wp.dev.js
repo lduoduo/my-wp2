@@ -145,13 +145,25 @@ var config = {
         // new HtmlWebpackPlugin({ template: './index.html' })
     ],
     devServer: {
-        contentBase: path.resolve(__dirname, "src"),
+        contentBase: [distPath, path.resolve(__dirname, 'src')],
+        /**
+         * 此路径下的打包文件可在浏览器中访问。
+         * 假设服务器运行在 http://localhost:8080 并且 output.filename 被设置为 bundle.js。
+         * 默认 publicPath 是 "/"，所以你的包(bundle)可以通过 http://localhost:8080/bundle.js 访问
+         */
+        publicPath: publicPath,
+        //告诉服务器监视那些通过 devServer.contentBase 选项提供的文件。文件改动将触发整个页面重新加载
+        watchContentBase: true,
         // true for index.html upon 404, object for multiple paths
         historyApiFallback: true,
         inline: true,
         // hot module replacement. Depends on HotModuleReplacementPlugin
         hot: true,
         port: 9000,
+        compress: true,
+        // lazy: true,
+        //指定使用一个 host。默认是 localhost。如果你希望服务器外部可访问
+        host: "192.168.31.45",
         headers: {
             "X-Custom-Foo": "webpack demo"
         }
@@ -160,7 +172,7 @@ var config = {
     watchOptions: {
         aggregateTimeout: 1000, // in ms
         // aggregates multiple changes to a single rebuild
-    },
+    }
 }
 
 module.exports = config;
