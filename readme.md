@@ -1,4 +1,4 @@
-## wp2 ---> webpack2 demo
+## wp2 ---> webpack2 自动化构建脚手架
 
 ### Part Done
 - [x] - multiple entries and auto inject js file into each html
