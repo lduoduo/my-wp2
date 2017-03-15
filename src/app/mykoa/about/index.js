@@ -1,5 +1,5 @@
-import './index.scss';
-require("html-loader!./index.html");
+import './aaa.scss';
+// require("html-loader!./index.html");
 
 console.log('this is about index.js');
 

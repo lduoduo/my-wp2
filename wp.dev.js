@@ -84,6 +84,7 @@ var config = {
                  * http://www.css88.com/doc/webpack2/loaders/html-loader/
                 */
                 test: /\.html$/,
+                use: 'html-withimg-loader'
                 // use: ['file-loader?name=[path][name].[ext]','extract-loader','html-loader']
                 // use: [ 'file-loader?name=html/[path][name].[ext]','extract-loader','html-loader' ]
             },
@@ -156,14 +157,24 @@ var config = {
         watchContentBase: true,
         // true for index.html upon 404, object for multiple paths
         historyApiFallback: true,
+        /**
+         * This means that a script will be inserted in your bundle to take care of live reloading,
+         * and build messages will appear in the browser console.
+         * It is also possible to use iframe mode, which uses an <iframe> under a notification bar with messages about the build.
+         */
         inline: true,
         // hot module replacement. Depends on HotModuleReplacementPlugin
         hot: true,
-        port: 9000,
+        watchContentBase: true,
+        watchOptions: {
+            poll: true
+        },
         compress: true,
         // lazy: true,
         //指定使用一个 host。默认是 localhost。如果你希望服务器外部可访问
-        host: "192.168.31.45",
+        // host: "192.168.31.45",
+        host: "10.101.40.14",
+        port: 9000,
         headers: {
             "X-Custom-Foo": "webpack demo"
         }
@@ -198,7 +209,7 @@ pages.forEach(function (pathname) {
          */
         template: srcPath + '/' + pathname + '.html',
         //js插入的位置，true/'head'/'body'/false
-        inject: 'body',
+        // inject: 'body',
         /**
          * As soon as you now set alwaysWriteToDisk to true the generated output of the HtmlWebpackPlugin will always be written to disk.
          * This is very useful if you want to pick up the output with another middleware.
@@ -222,7 +233,6 @@ pages.forEach(function (pathname) {
 
     // console.log('foldername/config.entry ---- >%s -- %s',foldername,JSON.stringify(config.entry));
     if (foldername in config.entry) {
-        console.log('1');
         conf.favicon = path.resolve(__dirname, 'src/img/myico.ico');
         //js插入的位置，true/'head'/'body'/false
         conf.inject = 'body';

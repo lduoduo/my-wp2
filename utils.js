@@ -26,7 +26,7 @@ module.exports = {
                 type = "html";
                 n = name.substring(8, name.lastIndexOf('.'));
                 // console.log("n_html:"+n);
-            } else if (/\.js$/.test(name)) {
+            } else if (/\.js$/.test(name) && !/^_/.test(name)) {
                 //不是html页面  这里实际上只有js页面需要处理
                 type = "entry";
                 n = name.substring(8, name.lastIndexOf('.'));
