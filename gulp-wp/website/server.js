@@ -24,6 +24,7 @@ var proxy = {
 
 //启动服务
 var app = new WebpackDevServer(webpack(config), {
+	
 	publicPath: '/static/',
 	hot: true,
 	proxy: proxy

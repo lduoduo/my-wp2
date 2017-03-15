@@ -1,5 +1,11 @@
 ## wp2 ---> webpack2 自动化构建脚手架
 
+### Description
+----
+### How to start
+
+## Logs
+
 ### Part Done
 - [x] - multiple entries and auto inject js file into each html
 - [x] - auto gzip and inject pics in js / css / html

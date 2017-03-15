@@ -5,7 +5,8 @@
   "main": "apps.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --config wp.dev.js --open --inline --hot --colors",
+    "start": "node server.js",
+    "app": "webpack-dev-server --config wp.dev.js --open --inline --hot --colors",
     "dev": "webpack --config wp.dev.js",
     "build": "webpack --config wp.prd.js"
   },

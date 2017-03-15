@@ -107,18 +107,6 @@ var config = {
     },
     plugins: [
         /**
-         * 先清空build目录
-         * https://github.com/johnagan/clean-webpack-plugin
-         */
-        new CleanPlugin(["./dist/*"], {
-            "root": "",
-            // Write logs to console.
-            "verbose": true,
-            // Use boolean "true" to test/emulate delete. (will not remove files).
-            // (Default: "false", remove files)
-            "dry": false
-        }),
-        /**
          * 在 output 的文件里，如果有任意模块加载了两次或更多（通过 minChunks 设置该值），
          * 它就会被打包进一个叫 commons.js 的文件里，后面你就可以在客户端缓存这个文件了。
          * 当然，这肯定会造成一次额外的请求，但是却避免了客户端多次下载相同库的问题。
@@ -140,23 +128,24 @@ var config = {
             // filename: "[name]-[chunkhash].css",
             allChunks: true,
         }),
-
+        //热更新模块
+        new webpack.HotModuleReplacementPlugin()
         // new HtmlWebpackPlugin()
         //下面这种写法报错
         // new HtmlWebpackPlugin({ template: './index.html' })
     ],
     devServer: {
-        contentBase: [distPath, path.resolve(__dirname, 'src')],
+        // contentBase: [distPath, path.resolve(__dirname, 'src')],
         /**
          * 此路径下的打包文件可在浏览器中访问。
          * 假设服务器运行在 http://localhost:8080 并且 output.filename 被设置为 bundle.js。
          * 默认 publicPath 是 "/"，所以你的包(bundle)可以通过 http://localhost:8080/bundle.js 访问
          */
-        publicPath: publicPath,
+        // publicPath: publicPath,
         //告诉服务器监视那些通过 devServer.contentBase 选项提供的文件。文件改动将触发整个页面重新加载
-        watchContentBase: true,
+        // watchContentBase: true,
         // true for index.html upon 404, object for multiple paths
-        historyApiFallback: true,
+        // historyApiFallback: true,
         /**
          * This means that a script will be inserted in your bundle to take care of live reloading,
          * and build messages will appear in the browser console.
@@ -165,7 +154,6 @@ var config = {
         inline: true,
         // hot module replacement. Depends on HotModuleReplacementPlugin
         hot: true,
-        watchContentBase: true,
         watchOptions: {
             poll: true
         },
@@ -177,13 +165,16 @@ var config = {
         port: 9000,
         headers: {
             "X-Custom-Foo": "webpack demo"
+        },
+        watchOptions: {
+            // in ms
+            aggregateTimeout: 1000,
+            // aggregates multiple changes to a single rebuild
+            poll: 1000
         }
     },
-    watch: true,
-    watchOptions: {
-        aggregateTimeout: 1000, // in ms
-        // aggregates multiple changes to a single rebuild
-    }
+    watch: true
+
 }
 
 module.exports = config;
@@ -236,7 +227,7 @@ pages.forEach(function (pathname) {
         conf.favicon = path.resolve(__dirname, 'src/img/myico.ico');
         //js插入的位置，true/'head'/'body'/false
         conf.inject = 'body';
-        conf.chunks = ['commons', foldername];
+        conf.chunks = ['commons', foldername, 'webpack-dev-server'];
         // conf.hash = true;
     }
 

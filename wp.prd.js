@@ -142,24 +142,7 @@ var config = {
         // new HtmlWebpackPlugin()
         //下面这种写法报错
         // new HtmlWebpackPlugin({ template: './index.html' })
-    ],
-    devServer: {
-        contentBase: path.resolve(__dirname, "src"),
-        // true for index.html upon 404, object for multiple paths
-        historyApiFallback: true,
-        inline: true,
-        // hot module replacement. Depends on HotModuleReplacementPlugin
-        hot: true,
-        port: 9000,
-        headers: {
-            "X-Custom-Foo": "webpack demo"
-        }
-    },
-    watch: true,
-    watchOptions: {
-        aggregateTimeout: 1000, // in ms
-        // aggregates multiple changes to a single rebuild
-    },
+    ]
 }
 
 module.exports = config;
