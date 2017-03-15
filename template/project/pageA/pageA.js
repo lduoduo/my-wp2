@@ -1,4 +1,5 @@
-import './index.less';
+import './_pageA.less';
+require('../../../common/js/A.js');
 
 console.log('pageA');
 

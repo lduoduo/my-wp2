@@ -11,27 +11,39 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 /** 引入工具 */
 const tool = require('./utils.js');
 
-/** 脚本样式的路径前缀 */
+/** 监听源文件的根目录 */
+const srcPath = path.resolve(__dirname, "src/app");
+/** 文件生成后存放的根目录 */
+const distPath = path.resolve(__dirname, "output");
+/** 服务器上的静态资源公开目录 */
+const publicPath = '//ldodo.cc/static/';
+/** 生成脚本样式之后的文件存放的路径前缀 */
 const preStatic = 'other';
 
 console.info('\n *************************************打包开始************************************ \n');
 //循环遍历所有文件，获取html和其他文件目录信息
 const info = tool.getEntry('src/app/**/**/*.*', preStatic);
 
+/** 没有源文件时候退出程序 */
+if(Object.keys(info.entry).length == 0){
+    console.log('no src files found. exit.');
+    return;
+}
+
 var config = {
     /**
      * 从context的文件夹里读取entry里面所有的文件进行解析,打包代码里面的依赖(import / require)
      * 将所有东西打包到output.path对应的文件夹里, 使用output.filename对应的命名模板来命名([name]被entry里的对象键值替代)
      */
-    context: path.resolve(__dirname, "src/app"),
+    context: srcPath,
     // the environment in which the bundle should run
     // changes chunk loading behavior and available modules
     target: "web",
     entry: info['entry'],
     output: {
-        path: path.resolve(__dirname, "dist"),
+        path: distPath,
         filename: '[name]-[chunkhash].js',
-        publicPath: '/static',
+        publicPath: publicPath,
         /**
          * 这样就会把打包结果绑定到一个 window.myClassName 实例上。所以使用这种命名作用域，就可以调用 entry 点里面的方法了
          * 参考: https://webpack.js.org/concepts/output/#output-library
@@ -72,20 +84,21 @@ var config = {
                 })
             },
             {
+                /** html文件里面的图片处理
+                 * 一个很常见的场景，将 HTML 导出到 .html 文件中，直接访问它们，而不是使用 javascript 注入。
+                 * http://www.css88.com/doc/webpack2/loaders/html-loader/
+                */
                 test: /\.html$/,
+                use: 'html-withimg-loader'
                 // use: ['file-loader?name=[path][name].[ext]','extract-loader','html-loader']
-                // use: [ 'file-loader?name=[path][name].[ext]!extract-loader!html-loader' ]
-                use: [{
-                    loader: 'html-loader',
-                    options: {
-                        minimize: true
-                    }
-                }],
+                // use: [ 'file-loader?name=html/[path][name].[ext]','extract-loader','html-loader' ]
             },
             {
-                /** 用于js/css中引入的图片处理 */
+                /** 用于js/css中引入的图片处理
+                 * https://webpack.js.org/loaders/url-loader/
+                */
                 test: /\.(png|jpg|jpeg|gif)$/,
-                use: ['url-loader?limit=8192&name=/img/[name].[hash:8].[ext]']
+                use: ['url-loader?limit=8192&name=img/[name].[hash:8].[ext]']
             }
         ]
     },
@@ -102,7 +115,7 @@ var config = {
          * 先清空build目录
          * https://github.com/johnagan/clean-webpack-plugin
          */
-        new CleanPlugin(["./dist/*"], {
+        new CleanPlugin([distPath], {
             "root": "",
             // Write logs to console.
             "verbose": true,
@@ -118,7 +131,7 @@ var config = {
          */
         new webpack.optimize.CommonsChunkPlugin({
             name: 'commons',
-            filename: preStatic ? preStatic + '/commons.js' : 'commons.js',
+            filename: preStatic ? preStatic + '/commons-[chunkhash].js' : 'commons-[chunkhash].js',
             minChunks: 2
         }),
         /**
@@ -128,6 +141,8 @@ var config = {
          * https://github.com/webpack-contrib/extract-text-webpack-plugin
          */
         new ExtractTextPlugin({
+            // name: 'commons',
+            // filename: preStatic ? preStatic + '/commons-[chunkhash].css' : 'commons-[chunkhash].css',
             filename: "[name]-[chunkhash].css",
             allChunks: true,
         }),
@@ -158,11 +173,14 @@ pages.forEach(function (pathname) {
     var conf = {
         //生成的html存放路径，相对于output.path
         filename: './html/' + destname + '.html',
-        chunks: ['commons', preStatic ? preStatic + '/' + destname : destname],
-        //html模板路径
-        // template: './src/page' + pathname + '.html',
+        /**
+         * 原始html模板路径
+         * template一定要写明
+         * 不写的后果: js注入生成的html文件是个空的html文件
+         */
+        template: srcPath + '/' + pathname + '.html',
         //js插入的位置，true/'head'/'body'/false
-        inject: 'body',
+        // inject: 'body',
         /**
          * As soon as you now set alwaysWriteToDisk to true the generated output of the HtmlWebpackPlugin will always be written to disk.
          * This is very useful if you want to pick up the output with another middleware.
@@ -171,7 +189,7 @@ pages.forEach(function (pathname) {
         /**
          * If you need to set the output path explicitly (for example when using with webpack-dev-server middleware) then pass in the outputPath option
          */
-        outputPath: path.resolve(__dirname, 'dist'),
+        outputPath: distPath,
         /*
          * 压缩这块，调用了html-minify，会导致压缩时候的很多html语法检查问题，
          * 如在html标签属性上使用{{...}}表达式，很多情况下并不需要在此配置压缩项，
@@ -185,10 +203,9 @@ pages.forEach(function (pathname) {
     };
 
     if (foldername in config.entry) {
-        console.log('1');
         conf.favicon = path.resolve(__dirname, 'src/img/myico.ico');
         conf.inject = 'body';
-        conf.chunks = ['vendors', foldername];
+        conf.chunks = ['commons', foldername];
         conf.hash = true;
     }
 

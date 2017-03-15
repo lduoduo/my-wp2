@@ -24,6 +24,12 @@ console.info('\n *************************************打包开始**************
 //循环遍历所有文件，获取html和其他文件目录信息
 const info = tool.getEntry('src/app/**/**/*.*', preStatic);
 
+/** 没有源文件时候退出程序 */
+if(Object.keys(info.entry).length == 0){
+    console.log('no src files found. exit.');
+    return;
+}
+
 var config = {
     /**
      * 从context的文件夹里读取entry里面所有的文件进行解析,打包代码里面的依赖(import / require)
@@ -174,7 +180,6 @@ var config = {
         }
     },
     watch: true
-
 }
 
 module.exports = config;

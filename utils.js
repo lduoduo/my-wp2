@@ -1,5 +1,13 @@
 /** webpack中会使用到的工具方法集合 */
+const fs = require('fs');
+var exec = require('child_process').exec;
 var glob = require('glob');
+/** 解决cmd中文乱码问题
+ * http://ask.csdn.net/questions/167560
+ */
+var iconv = require('iconv-lite');
+var encoding = 'cp936';
+var binaryEncoding = 'binary';
 
 module.exports = {
     /** 根据路径获取路径下的所有文件
@@ -32,7 +40,7 @@ module.exports = {
                 n = name.substring(8, name.lastIndexOf('.'));
                 n = n.substring(0, n.lastIndexOf('/'));
                 // n = name.substring((name.lastIndexOf('/') + 1), name.lastIndexOf('.'));
-                
+
                 //为脚本样式添加统一前缀
                 n = preStatic ? preStatic + '/' + n : n;
             }
@@ -46,5 +54,52 @@ module.exports = {
         });
         console.log('entry----->%s', JSON.stringify(entry));
         return entry;
+    },
+    /** 判断文件夹路径是否已存在，不存在则创建路径 */
+    checkDir(destPath) {
+
+        return function (done) {
+            fs.stat(destPath, function (err) {
+                if (err) {
+                    // 创建文件夹
+                    fs.mkdir(destPath, function (err) {
+                        done('', '');
+                    });
+                } else {
+                    done('', 'already existed same name!');
+                }
+            });
+        }
+
+    },
+    /** windows平台的文件路径copy指令 */
+    cmdFileCopy(srcPath, destPath) {
+        console.log('srcPath--->%s\n destPath--->%s', srcPath, destPath);
+        return function (done) {
+            var ls = exec(`xcopy ${srcPath} ${destPath} /e`, { encoding: binaryEncoding }, function (error, stdout, stderr) {
+                // if (error) {
+
+                //     console.log(error.stack);
+                //     console.log('Error code: ' + error.code);
+                // }
+                // console.log('Child Process STDOUT: ' + stdout);
+                console.log(iconv.decode(new Buffer(stdout, binaryEncoding), encoding), iconv.decode(new Buffer(stderr, binaryEncoding), encoding));
+                done('');
+            });
+        }
+    },
+    /** linux平台的文件路径copy指令 */
+    lsFileCopy(srcPath, destPath) {
+        console.log('srcPath--->%s\n destPath--->%s', srcPath, destPath);
+        return function (done) {
+            var ls = exec(`cp -r ${srcPath} ${destPath}`, function (error, stdout, stderr) {
+                if (error) {
+                    console.log(error.stack);
+                    console.log('Error code: ' + error.code);
+                }
+                console.log('Child Process STDOUT: ' + stdout);
+                done('');
+            });
+        }
     }
 }

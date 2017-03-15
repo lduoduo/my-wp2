@@ -1,31 +1,44 @@
 ## wp2 ---> webpack2 自动化构建脚手架
 
 ### Description
-----
-### How to start
+> This is a personal SCAFFOLDING TOOL with webpack2
 
-## Logs
+### How to start
+- git clone this project
+- npm i
+- init env: npm run env
+- add a new project: npm run init
+- webpack watch: npm run dev
+- webpack build: npm run build
+
+### Tips!
+- all scss/less files must be included in js file
+
+### Logs
 
 ### Part Done
 - [x] - multiple entries and auto inject js file into each html
+
 - [x] - auto gzip and inject pics in js / css / html
-    > jpg in js file, eg: var imgUrl = require('../../../img/bg.jpg')
+    - jpg in js file, eg: var imgUrl = require('../../../img/bg.jpg')
+    - jpg in css file, just set loader in webpack.config.js ---> url-loader
+    - pics in html, set loader in webpack.config.js ---> [html-withimg-loader](https://github.com/wzsxyz/html-withimg-loader)
 
-    > jpg in css file, just set loader in webpack.config.js ---> url-loader
-
-    > pics in html, set loader in webpack.config.js ---> [html-withimg-loader](https://github.com/wzsxyz/html-withimg-loader)
+- [x] - scaffold with template
+    - 1.npm run env: initial src enviroment, copy dir from ./template/env
+    - 2.npm run init: add a new project to src dir, copy dir from ./template/project
+    > resolved issues: [uft8 issue](http://ask.csdn.net/questions/167560)
 
 ### Part `Inprogress`
 + use templates
-+ issues with webpack-dev-server
-    > when start webpack-dev-server, access url: ip:port/app/projectName/page/index.html
 
-    > inline / hot not work now, will look for other ways
++ issues with webpack-dev-server
+    - when start webpack-dev-server, access url: ip:port/app/projectName/page/index.html
+    - inline / hot not work now, will look for other ways
 
 ### Part Waiting
 + small server
 + combine with gulp
-+ scaffold with template
 
 
 ### QA
@@ -35,7 +48,7 @@
 - src
     - app `具体项目的业务文件夹`
         - projectA
-            - pageA `一个文件夹就是一个页面配置，默认只允许一个js/css/html，如果有拆分多个脚本样式，请将拆分的文件做下划线前缀处理!!`
+            - pageA `一个文件夹就是一个页面配置，默认只允许一个js/css/html(名字随便取，不要有下划线就行)，如果有拆分多个脚本样式，请将拆分的文件做下划线前缀处理!!`
                 - A.html
                 - A.js
                 - A.scss
