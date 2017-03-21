@@ -30,7 +30,7 @@
     > resolved issues: [uft8 issue](http://ask.csdn.net/questions/167560)
 
 - [x] - compile scss / less both
-    - plugins: `postcss-loader` / `postcss-scss` / `node-sass` / 
+    - plugins: `postcss-loader` / `postcss-scss` / `node-sass` [download node-sass fail](https://lzw.me/a/node-sass-install-helper.html)
 
 ### Part `Inprogress`
 + use templates
