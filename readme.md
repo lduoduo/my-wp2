@@ -39,6 +39,7 @@
 ### Part Waiting
 + small server
 + combine with gulp
++ js async loading
 
 
 ### QA

@@ -23,23 +23,23 @@ co(init);
 
 function* init(){
 	var projectName = yield cmdio.input('请输入项目英文名称:');
-	destPath = path.join(__dirname, destPath, projectName);
+	var distPath = path.join(__dirname, destPath, projectName);
 
-	var status = yield tool.checkDir(destPath);
+	var status = yield tool.checkDir(distPath);
 
 	if (!status) {
 		//拷贝文件
 		if (/win32/gi.test(sys)) {
 
-			yield tool.cmdFileCopy(srcPath, destPath);
+			yield tool.cmdFileCopy(srcPath, distPath);
 
 		} else {
 
-			yield tool.lsFileCopy(srcPath, destPath);
+			yield tool.lsFileCopy(srcPath, distPath);
 
 		}
 
-		console.log(`项目初始化成功，请进入目录开始愉快的工作吧: ${destPath}`);
+		console.log(`\n项目初始化成功，项目目录: ${distPath}\n运行命令 npm run app进行热监听!`);
 
 		cmdio.close();
 
@@ -47,7 +47,7 @@ function* init(){
 
 		console.log(status);
 
-		yield *init;
+		yield* init();
 
 	}
 }

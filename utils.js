@@ -1,4 +1,5 @@
 /** webpack中会使用到的工具方法集合 */
+const os = require('os');
 const fs = require('fs');
 var exec = require('child_process').exec;
 var glob = require('glob');
@@ -13,7 +14,7 @@ module.exports = {
     /** 根据路径获取路径下的所有文件
      * return: {
      *  html:[],
-     *  js:[]
+     *  other:[]
      * }
      */
     getEntry(url, preStatic) {
@@ -92,7 +93,11 @@ module.exports = {
     lsFileCopy(srcPath, destPath) {
         console.log('srcPath--->%s\n destPath--->%s', srcPath, destPath);
         return function (done) {
-            var ls = exec(`cp -r ${srcPath} ${destPath}`, function (error, stdout, stderr) {
+            /** 这里有个坑
+             * `cp -r ${srcPath} ${destPath}` 这个会把源目录的当前文件夹一起copy过去!
+             * 我们要的只是源目录下的内容，需要用如下方式
+             */
+            var ls = exec(`cp -r ${srcPath}/. ${destPath}`, function (error, stdout, stderr) {
                 if (error) {
                     console.log(error.stack);
                     console.log('Error code: ' + error.code);
@@ -101,5 +106,22 @@ module.exports = {
                 done('');
             });
         }
+    },
+    /** 获取本机Ip */
+    getLocalIP() {
+        let interObj = os.networkInterfaces();
+        let address;
+        for (let i in interObj) {
+            let itemArr = interObj[i];
+            if (itemArr) {
+                itemArr.forEach(function (item) {
+                    if (item.family === 'IPv4' && item.address !== "127.0.0.1") {
+                        address = item.address;
+                        return;
+                    }
+                })
+            }
+            if (address) return address;
+        };
     }
 }

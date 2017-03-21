@@ -68,13 +68,21 @@ var config = {
                 }),
             },
             {
-                test: /\.(sass|scss)$/,
-                // use: ["style-loader", "css-loader", 'sass-loader']
-                use: ExtractTextPlugin.extract({
-                    fallback: 'style-loader',
-                    //resolve-url-loader may be chained before sass-loader if necessary
-                    use: ['css-loader', 'sass-loader']
-                })
+                test: /\.scss$/,
+                // include: path.resolve(__dirname, 'src/common'),
+                // use: 'style!css!postcss?parser=postcss-scss',
+                // test: /\.(less|css)$/,
+                use: ["style-loader", "css-loader", {
+                    loader: 'postcss-loader?parser=postcss-scss',
+                    options: {
+                        plugins: function () {
+                            return [
+                                require('precss'),
+                                require('autoprefixer')
+                            ];
+                        }
+                    }
+                },"sass-loader"]
             },
             {
                 test: /\.less$/,
@@ -83,6 +91,15 @@ var config = {
                     //resolve-url-loader may be chained before sass-loader if necessary
                     use: ['css-loader', 'less-loader']
                 })
+            },
+            {
+                /** ejs模板处理
+                 * https://github.com/okonet/ejs-loader
+                */
+                test: /\.ejs$/,
+                use: 'ejs-loader'
+                // use: ['file-loader?name=[path][name].[ext]','extract-loader','html-loader']
+                // use: [ 'file-loader?name=html/[path][name].[ext]','extract-loader','html-loader' ]
             },
             {
                 /** html文件里面的图片处理 
@@ -167,8 +184,8 @@ var config = {
         // lazy: true,
         //指定使用一个 host。默认是 localhost。如果你希望服务器外部可访问
         // host: "192.168.31.45",
-        host: "10.101.40.14",
-        port: 9000,
+        host: tool.getLocalIP(),
+        port: 9009,
         headers: {
             "X-Custom-Foo": "webpack demo"
         },
@@ -194,6 +211,8 @@ pages.forEach(function (pathname) {
     var foldername = preStatic ? preStatic + '/' + destname : destname;
     console.log('destpath----->%s', destname);
     var conf = {
+        //
+        title: 'title',
         //生成的html存放路径，相对于output.path
         filename: './html/' + destname + '.html',
         // chunks: ['commons', preStatic ? preStatic + '/' + destname : destname],
