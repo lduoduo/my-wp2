@@ -29,6 +29,9 @@
     - 2.npm run init: add a new project to src dir, copy dir from ./template/project
     > resolved issues: [uft8 issue](http://ask.csdn.net/questions/167560)
 
+- [x] - compile scss / less both
+    - plugins: `postcss-loader` / `postcss-scss` / `node-sass` / 
+
 ### Part `Inprogress`
 + use templates
 
