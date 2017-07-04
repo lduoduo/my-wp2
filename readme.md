@@ -1,5 +1,7 @@
 ## wp2 ---> webpack2 自动化构建脚手架
 
+branch webrtc ==> only compile js file, no html
+
 ### Description
 > This is a personal SCAFFOLDING TOOL with webpack2
 

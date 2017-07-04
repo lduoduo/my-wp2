@@ -7,8 +7,8 @@ const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
 var config = require('./wp.dev');
 
-const serverPort = 9999,
-	devPort = 9000;
+const serverPort = 9009,
+	devPort = 9001;
 
 config.entry['webpack-dev-server'] = 'webpack-dev-server/client?http://localhost:' + devPort;
 // const compiler = webpack(config);
@@ -31,6 +31,10 @@ var app = new WebpackDevServer(webpack(config), {
 	stats: { colors: true }
 });
 
-app.listen(devPort, "10.101.40.14", function () {
+// app.listen(devPort, "10.101.40.14", function () {
+// 	console.log('dev server on port:' + devPort + '\n');
+// });
+
+app.listen(devPort, function () {
 	console.log('dev server on port:' + devPort + '\n');
 });

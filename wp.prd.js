@@ -22,7 +22,7 @@ const preStatic = 'other';
 
 console.info('\n *************************************打包开始************************************ \n');
 //循环遍历所有文件，获取html和其他文件目录信息
-const info = tool.getEntry('src/app/**/**/*.*', preStatic);
+const info = tool.getEntryW('src/app/**/**/*.*', preStatic);
 
 /** 没有源文件时候退出程序 */
 if(Object.keys(info.entry).length == 0){
@@ -42,7 +42,7 @@ var config = {
     entry: info['entry'],
     output: {
         path: distPath,
-        filename: '[name]-[chunkhash].js',
+        filename: '[name].js',
         publicPath: publicPath,
         /**
          * 这样就会把打包结果绑定到一个 window.myClassName 实例上。所以使用这种命名作用域，就可以调用 entry 点里面的方法了
@@ -84,21 +84,15 @@ var config = {
                 })
             },
             {
-                /** html文件里面的图片处理
-                 * 一个很常见的场景，将 HTML 导出到 .html 文件中，直接访问它们，而不是使用 javascript 注入。
-                 * http://www.css88.com/doc/webpack2/loaders/html-loader/
-                */
-                test: /\.html$/,
-                use: 'html-withimg-loader'
-                // use: ['file-loader?name=[path][name].[ext]','extract-loader','html-loader']
-                // use: [ 'file-loader?name=html/[path][name].[ext]','extract-loader','html-loader' ]
-            },
-            {
                 /** 用于js/css中引入的图片处理
                  * https://webpack.js.org/loaders/url-loader/
                 */
                 test: /\.(png|jpg|jpeg|gif)$/,
                 use: ['url-loader?limit=8192&name=img/[name].[hash:8].[ext]']
+            },
+            {
+                test: /\.(eot|ttf|bmp|svg|woff|woff2)$/,
+                use: ["file-loader?name=font/[name].[ext]&limit=10000"]
             }
         ]
     },
@@ -131,7 +125,7 @@ var config = {
          */
         new webpack.optimize.CommonsChunkPlugin({
             name: 'commons',
-            filename: preStatic ? preStatic + '/commons-[chunkhash].js' : 'commons-[chunkhash].js',
+            filename: preStatic ? preStatic + '/commons.js' : 'commons.js',
             minChunks: 2
         }),
         /**
@@ -143,7 +137,7 @@ var config = {
         new ExtractTextPlugin({
             // name: 'commons',
             // filename: preStatic ? preStatic + '/commons-[chunkhash].css' : 'commons-[chunkhash].css',
-            filename: "[name]-[chunkhash].css",
+            filename: "[name].css",
             allChunks: true,
         }),
         //压缩代码
@@ -167,7 +161,7 @@ var pages = Object.keys(info['html']);
 console.info('\n\n *************************************html入口打包************************************ \n');
 pages.forEach(function (pathname) {
     console.log('path----->%s', pathname);
-    var destname = pathname.substring((pathname.lastIndexOf('/')), pathname.lastIndexOf('.'));
+    var destname = pathname; //pathname.substring((pathname.lastIndexOf('/')), pathname.lastIndexOf('.'));
     var foldername = destname.replace('/', '');
     console.log('destpath----->%s', destname);
     var conf = {
@@ -202,7 +196,8 @@ pages.forEach(function (pathname) {
         // }
     };
 
-    if (foldername in config.entry) {
+    let foldername_1 = foldername.substring(0, foldername.lastIndexOf('/'))
+    if (foldername_1 in config.entry) {
         conf.favicon = path.resolve(__dirname, 'src/img/myico.ico');
         conf.inject = 'body';
         conf.chunks = ['commons', foldername];
