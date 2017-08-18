@@ -104,7 +104,7 @@ var config = {
             {
                 /** html文件里面的图片处理 
                  * 一个很常见的场景，将 HTML 导出到 .html 文件中，直接访问它们，而不是使用 javascript 注入。
-                 * http://www.css88.com/doc/webpack2/loaders/html-loader/
+                 * https://github.com/wzsxyz/html-withimg-loader
                 */
                 test: /\.html$/,
                 use: 'html-withimg-loader'
