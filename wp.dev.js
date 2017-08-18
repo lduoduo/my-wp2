@@ -247,10 +247,12 @@ pages.forEach(function (pathname) {
     };
 
     // console.log('foldername/config.entry ---- >%s -- %s',foldername,JSON.stringify(config.entry));
+    // 这里只插入每个html同文件夹下的js文件，而不必全部引用
     if (foldername in config.entry) {
         conf.favicon = path.resolve(__dirname, 'src/img/myico.ico');
         //js插入的位置，true/'head'/'body'/false
         conf.inject = 'body';
+        console.log('filename -> foldername:', foldername)
         conf.chunks = ['commons', foldername, 'webpack-dev-server'];
         // conf.hash = true;
     }
